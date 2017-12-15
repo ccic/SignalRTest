@@ -17,14 +17,14 @@
             public TimeSpan total;
         }
 
-        static async Task<Record> Ping()
+        static async Task<Record> Ping(string endpoint)
         {
             DateTime date = DateTime.Now;
             Stopwatch sw = new Stopwatch();
             sw.Start();
             TimeSpan recv;
             // var connection = new HubConnectionBuilder().WithUrl("http://localhost:50137/ping").WithConsoleLogger().Build();
-            var connection = new HubConnectionBuilder().WithUrl("http://localhost:50137/ping").Build();
+            var connection = new HubConnectionBuilder().WithUrl(endpoint).Build();
             AutoResetEvent e = new AutoResetEvent(false);
             TimeSpan connect;
             connection.On<string>("Pong", data =>
@@ -47,11 +47,17 @@
 
         static void Main(string[] args)
         {
+            if (args.Length < 1) {
+                Console.WriteLine("Missing server endpoint.");
+                return;
+            }
+
             Console.WriteLine("Start at " + DateTime.Now);
+            var endpoint = args[0];
             var total = 5000;
             var ts = new Task<Record>[200];
             // init
-            for (var i = 0; i < ts.Length; i++) ts[i] = Ping();
+            for (var i = 0; i < ts.Length; i++) ts[i] = Ping(endpoint);
             int running = ts.Length, remaining = total - running;
             var records = new List<Record>();
             while (running > 0)
@@ -60,7 +66,7 @@
                 records.Add(ts[i].Result);
                 if (remaining > 0)
                 {
-                    ts[i] = Ping();
+                    ts[i] = Ping(endpoint);
                     remaining--;
                 }
                 else running--;
