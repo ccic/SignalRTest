@@ -1,12 +1,15 @@
 ﻿namespace SignalRServer
 {
+    using System.Threading.Tasks;
     using Microsoft.AspNetCore.SignalR;
 
     public class EchoHub : Hub
     {
-        public void Ping(string name)
+        public async Task Ping(long payload1, string payload2)
         {
-            Clients.Client(Context.ConnectionId).InvokeAsync("Pong", "Hello " + name);
+            // simulate a 500ms server processing time
+            await Task.Delay(500);
+            await Clients.Client(Context.ConnectionId).InvokeAsync("Pong", payload1, payload2);
         }
     }
 }
