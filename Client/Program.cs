@@ -79,7 +79,16 @@
 
         static Stopwatch sw = new Stopwatch();
 
-        static async Task Connect(string endpoint, int count)
+        static string endpoint;
+
+        static int count;
+
+        static int sendInterval;
+
+        static int statInterval;
+
+
+        static async Task Connect()
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -106,28 +115,58 @@
             }
         }
 
-        static async Task Send(int index, int interval)
+        static async Task Send(HubConnection c)
         {
             // Wait for a random time
-            await Task.Delay(rand.Next(interval));
-            connection[index].On<long, string>("Pong", (started, message) => received.Add(sw.ElapsedMilliseconds - started));
+            await Task.Delay(rand.Next(sendInterval));
+            c.On<long, string>("Pong", (started, message) => received.Add(sw.ElapsedMilliseconds - started));
             while (true)
             {
                 long started = sw.ElapsedMilliseconds;
-                await connection[index].InvokeAsync("Ping", started, "World");
+                await c.InvokeAsync("Ping", started, "World");
                 var elapsed = sw.ElapsedMilliseconds - started;
                 sent.Add(elapsed);
-                var delay = interval - (int)elapsed;
+                var delay = sendInterval - (int)elapsed;
                 if (delay > 0) await Task.Delay(delay);
             }
         }
 
-        static async Task Run(string endpoint, int total, int interval)
+        static void SendSync(object o)
         {
-            await Connect(endpoint, total);
-            var ts = new Task[total];
+            HubConnection c = (HubConnection)o;
+            // Wait for a random time
+            Thread.Sleep(rand.Next(sendInterval));
+            c.On<long, string>("Pong", (started, message) => received.Add(sw.ElapsedMilliseconds - started));
+            while (true)
+            {
+                long started = sw.ElapsedMilliseconds;
+                c.InvokeAsync("Ping", started, "World").Wait();
+                var elapsed = sw.ElapsedMilliseconds - started;
+                sent.Add(elapsed);
+                var delay = sendInterval - (int)elapsed;
+                if (delay > 0) Thread.Sleep(delay);
+            }
+        }
+
+        static void RunSync()
+        {
+            Connect().Wait();
             sw.Start();
-            for (var i = 0; i < total; i++) ts[i] = Send(i, interval);
+            Thread[] ts = new Thread[count];
+            for (var i = 0; i < count; i++)
+            {
+                ts[i] = new Thread(SendSync);
+                ts[i].Start(connection[i]);
+            }
+            Console.ReadKey();
+        }
+
+        static async Task Run()
+        {
+            await Connect();
+            sw.Start();
+            var ts = new Task[count];
+            for (var i = 0; i < count; i++) ts[i] = Send(connection[i]);
             Console.ReadKey();
         }
 
@@ -140,13 +179,14 @@
             }
 
             Console.WriteLine("Start at " + DateTime.Now + ", press any key to stop...");
-            var endpoint = args[0];
-            var total = int.Parse(args[1]);
-            var interval = int.Parse(args[2]);
-            var statInterval = int.Parse(args[3]);
+            endpoint = args[0];
+            count = int.Parse(args[1]);
+            sendInterval = int.Parse(args[2]);
+            statInterval = int.Parse(args[3]);
             sent = new Counter("send", statInterval);
             received = new Counter("recv", statInterval);
-            Run(endpoint, total, interval).Wait();
+            // Run().Wait();
+            RunSync();
         }
     }
 }
