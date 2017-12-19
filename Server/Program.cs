@@ -1,5 +1,6 @@
 ﻿namespace SignalRServer
 {
+    using System.Linq;
     using Microsoft.AspNetCore;
     using Microsoft.AspNetCore.Hosting;
 
@@ -8,7 +9,7 @@
         public static void Main(string[] args)
         {
             EchoHub.Delay = int.Parse(args[0]);
-            BuildWebHost(args).Run();
+            BuildWebHost(args.Skip(1).ToArray()).Run();
         }
 
         public static IWebHost BuildWebHost(string[] args) =>
