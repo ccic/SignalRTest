@@ -7,6 +7,7 @@
     {
         public static void Main(string[] args)
         {
+            EchoHub.Delay = int.Parse(args[0]);
             BuildWebHost(args).Run();
         }
 
