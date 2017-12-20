@@ -1,5 +1,6 @@
 ﻿namespace SignalRServer
 {
+    using System;
     using System.Linq;
     using Microsoft.AspNetCore;
     using Microsoft.AspNetCore.Hosting;
@@ -8,12 +9,17 @@
     {
         public static void Main(string[] args)
         {
-            EchoHub.Delay = int.Parse(args[0]);
+            if (args.Length < 2)
+            {
+                Console.WriteLine("Usage: server [server_procesing_time] [group_size]");
+            }
+            PingHub.Delay = int.Parse(args[0]);
+            PingHub.MaxGroupSize = int.Parse(args[1]);
             BuildWebHost(args.Skip(1).ToArray()).Run();
         }
 
         public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
+            WebHost.CreateDefaultBuilder(args.Skip(2).ToArray())
                 .UseStartup<Startup>()
                 .Build();
     }
