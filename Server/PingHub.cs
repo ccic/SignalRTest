@@ -22,7 +22,8 @@
             if (MaxGroupSize == 0) return Task.CompletedTask;
             lock (this)
             {
-                var g = currentGroupCount++;
+                var g = currentGroup;
+                currentGroupCount++;
                 if (currentGroupCount >= MaxGroupSize)
                 {
                     currentGroup++;
