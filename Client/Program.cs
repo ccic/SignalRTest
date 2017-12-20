@@ -87,7 +87,6 @@
 
         static int statInterval;
 
-
         static async Task Connect()
         {
             Stopwatch w = new Stopwatch();
