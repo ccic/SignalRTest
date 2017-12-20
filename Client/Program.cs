@@ -119,12 +119,10 @@
 
         static async Task Send(HubConnection c)
         {
-            // Wait for a random time
-            await Task.Delay(rand.Next(sendInterval));
             while (true)
             {
                 c.InvokeAsync("Ping", sw.ElapsedMilliseconds, "World");
-                await Task.Delay(sendInterval);
+                await Task.Delay(rand.Next(sendInterval * 2));
             }
         }
 

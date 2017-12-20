@@ -12,6 +12,7 @@
             if (args.Length < 2)
             {
                 Console.WriteLine("Usage: server [server_procesing_time] [group_size]");
+                return;
             }
             PingHub.Delay = int.Parse(args[0]);
             PingHub.MaxGroupSize = int.Parse(args[1]);

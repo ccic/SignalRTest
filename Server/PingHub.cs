@@ -37,7 +37,7 @@
 
         public async Task Ping(long payload1, string payload2)
         {
-            // simulate a 500ms server processing time
+            // simulate server processing time
             await Task.Delay(Delay);
             await Task.WhenAll(
                 Clients.Client(Context.ConnectionId).InvokeAsync("Pong", payload1, payload2),
