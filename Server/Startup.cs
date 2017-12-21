@@ -18,7 +18,7 @@
         {
             app.UseSignalR(routes =>
             {
-                routes.MapHub<PingHub>("ping");
+                routes.MapHub<PingHub>("/ping");
             });
         }
     }

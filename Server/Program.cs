@@ -16,11 +16,11 @@
             }
             PingHub.Delay = int.Parse(args[0]);
             PingHub.MaxGroupSize = int.Parse(args[1]);
-            BuildWebHost(args.Skip(1).ToArray()).Run();
+            BuildWebHost(args.Skip(2).ToArray()).Run();
         }
 
         public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args.Skip(2).ToArray())
+            WebHost.CreateDefaultBuilder(args.ToArray())
                 .UseStartup<Startup>()
                 .Build();
     }
