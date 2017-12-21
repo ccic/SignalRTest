@@ -96,7 +96,7 @@
             connection = new HubConnection[count];
             for (var i = 0; i < count; i++)
             {
-                connection[i] = protocol.ToLower() == "json " ?
+                connection[i] = protocol.ToLower() == "json" ?
                     new HubConnectionBuilder().WithUrl(endpoint).WithJsonProtocol().Build() :
                     new HubConnectionBuilder().WithUrl(endpoint).WithMessagePackProtocol().Build();
                 try
