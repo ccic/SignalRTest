@@ -94,7 +94,7 @@
             connection = new HubConnection[count];
             for (var i = 0; i < count; i++)
             {
-                connection[i] = new HubConnectionBuilder().WithUrl(endpoint).Build();
+                connection[i] = new HubConnectionBuilder().WithUrl(endpoint).WithMessagePackProtocol().Build();
                 try
                 {
                     await connection[i].StartAsync();
