@@ -87,6 +87,8 @@
 
         static int statInterval;
 
+        static string protocol;
+
         static async Task Connect()
         {
             Stopwatch w = new Stopwatch();
@@ -94,7 +96,9 @@
             connection = new HubConnection[count];
             for (var i = 0; i < count; i++)
             {
-                connection[i] = new HubConnectionBuilder().WithUrl(endpoint).WithMessagePackProtocol().Build();
+                connection[i] = protocol.ToLower() == "json " ?
+                    new HubConnectionBuilder().WithUrl(endpoint).WithJsonProtocol().Build() :
+                    new HubConnectionBuilder().WithUrl(endpoint).WithMessagePackProtocol().Build();
                 try
                 {
                     await connection[i].StartAsync();
@@ -136,9 +140,9 @@
 
         static void Main(string[] args)
         {
-            if (args.Length < 4)
+            if (args.Length < 5)
             {
-                Console.WriteLine("Usage: client [server_endpoint] [connection_count] [send_interval(ms)] [stat_interval(sec)]");
+                Console.WriteLine("Usage: client [server_endpoint] [connection_count] [send_interval(ms)] [stat_interval(sec)] [protocol]");
                 return;
             }
 
@@ -147,6 +151,7 @@
             count = int.Parse(args[1]);
             sendInterval = int.Parse(args[2]);
             statInterval = int.Parse(args[3]);
+            protocol = args[4];
             received = new Counter("recv", statInterval);
             broadcasted = new Counter("bcst", statInterval);
             Run().Wait();
